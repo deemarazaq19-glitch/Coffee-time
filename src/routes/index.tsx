@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShoppingBag, Leaf, Flame, Hand, Instagram, Facebook, Twitter, Mail, MapPin, Phone } from "lucide-react";
+import { ContactForm } from "@/components/ContactForm";
 import cappuccinoImg from "@/assets/product-cappuccino.jpg";
 import espressoImg from "@/assets/product-espresso.jpg";
 import latteImg from "@/assets/product-latte.jpg";
@@ -250,7 +251,7 @@ function Footer() {
   return (
     <footer id="contact" className="bg-primary text-primary-foreground">
       <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
-        <div className="grid gap-12 md:grid-cols-3">
+        <div className="grid gap-12 lg:grid-cols-[1.1fr_1fr_0.9fr]">
           <div>
             <a href="#" className="font-serif text-3xl font-semibold">
               Coffee <span className="text-accent">Time</span>
@@ -258,6 +259,12 @@ function Footer() {
             <p className="mt-4 max-w-xs text-sm text-primary-foreground/70">
               Small-batch roasted coffee, delivered fresh from our roastery to your kitchen.
             </p>
+            <div className="mt-8">
+              <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-accent">
+                Send us a note
+              </h4>
+              <ContactForm />
+            </div>
           </div>
           <div>
             <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-accent">Visit Us</h4>
