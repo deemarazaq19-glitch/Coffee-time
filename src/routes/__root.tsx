@@ -81,11 +81,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Coffee Time — Small-Batch Roasted Coffee Delivered" },
       { name: "description", content: "Coffee Time roasts sustainably sourced beans in small batches and delivers freshly roasted coffee to your door." },
       { name: "author", content: "Coffee Time" },
-      { property: "og:title", content: "Coffee Time — Small-Batch Roasted Coffee" },
-      { property: "og:description", content: "Sustainably sourced, freshly roasted, expertly crafted coffee delivered to your door." },
+      { property: "og:title", content: "Coffee Time — Small-Batch Roasted Coffee Delivered" },
+      { property: "og:description", content: "Coffee Time roasts sustainably sourced beans in small batches and delivers freshly roasted coffee to your door." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Coffee Time — Small-Batch Roasted Coffee Delivered" },
+      { name: "twitter:description", content: "Coffee Time roasts sustainably sourced beans in small batches and delivers freshly roasted coffee to your door." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/260fa025-5bc2-42f6-9a14-8efeed58e95f/id-preview-f0e9edc3--2a7ec306-9819-4db2-9921-f68cdbf0c09f.lovable.app-1783513085652.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/260fa025-5bc2-42f6-9a14-8efeed58e95f/id-preview-f0e9edc3--2a7ec306-9819-4db2-9921-f68cdbf0c09f.lovable.app-1783513085652.png" },
     ],
     links: [
       {
