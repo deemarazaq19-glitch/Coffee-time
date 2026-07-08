@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShoppingBag, Leaf, Flame, Hand, Instagram, Facebook, Twitter, Mail, MapPin, Phone } from "lucide-react";
 import cappuccinoImg from "@/assets/product-cappuccino.jpg";
 import espressoImg from "@/assets/product-espresso.jpg";
@@ -58,6 +58,7 @@ function Nav() {
         </a>
         <nav className="hidden gap-8 text-sm font-medium text-primary/80 md:flex">
           <a href="#shop" className="hover:text-accent">Shop</a>
+          <Link to="/menu" className="hover:text-accent">Menu</Link>
           <a href="#about" className="hover:text-accent">Our Story</a>
           <a href="#values" className="hover:text-accent">Why Us</a>
           <a href="#contact" className="hover:text-accent">Contact</a>
