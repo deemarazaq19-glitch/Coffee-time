@@ -1,36 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ShoppingBag, Leaf, Flame, Hand, Instagram, Facebook, Twitter, Mail, MapPin, Phone } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2, Leaf, Flame, Hand, Instagram, Facebook, Twitter, Mail, MapPin, Phone, ShoppingBag } from "lucide-react";
 import { ContactForm } from "@/components/ContactForm";
-import cappuccinoImg from "@/assets/product-cappuccino.jpg";
-import espressoImg from "@/assets/product-espresso.jpg";
-import latteImg from "@/assets/product-latte.jpg";
+import { CartDrawer } from "@/components/CartDrawer";
+import { ProductCard } from "@/components/ProductCard";
+import { fetchProducts } from "@/lib/shopify";
 import bannerImg from "@/assets/banner-delivery.jpg";
 import spotlightImg from "@/assets/spotlight-espresso.jpg";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
-
-const products = [
-  {
-    name: "House Cappuccino",
-    description: "Velvety milk over a bold double shot, finished with a heart.",
-    price: "$5.50",
-    image: cappuccinoImg,
-  },
-  {
-    name: "Single Origin Espresso",
-    description: "Bright, syrupy Ethiopian beans pulled fresh to order.",
-    price: "$4.25",
-    image: espressoImg,
-  },
-  {
-    name: "Iced Vanilla Latte",
-    description: "Cold-brewed espresso, oat milk and house vanilla syrup.",
-    price: "$6.00",
-    image: latteImg,
-  },
-];
 
 const values = [
   {
@@ -54,25 +34,27 @@ function Nav() {
   return (
     <header className="absolute inset-x-0 top-0 z-20">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
-        <a href="#" className="font-serif text-2xl font-semibold text-primary">
+        <Link to="/" className="font-serif text-2xl font-semibold text-primary">
           Coffee <span className="text-accent">Time</span>
-        </a>
+        </Link>
         <nav className="hidden gap-8 text-sm font-medium text-primary/80 md:flex">
-          <a href="#shop" className="hover:text-accent">Shop</a>
+          <Link to="/shop" className="hover:text-accent">Shop</Link>
           <Link to="/menu" className="hover:text-accent">Menu</Link>
           <a href="#about" className="hover:text-accent">Our Story</a>
           <a href="#values" className="hover:text-accent">Why Us</a>
           <a href="#contact" className="hover:text-accent">Contact</a>
         </nav>
-        <button className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-accent">
-          <ShoppingBag className="h-4 w-4" /> Cart
-        </button>
+        <CartDrawer />
       </div>
     </header>
   );
 }
 
 function BestSellers() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["shopify-products", "best-sellers"],
+    queryFn: () => fetchProducts(3),
+  });
   return (
     <section id="shop" className="relative pt-32 pb-24 lg:pt-40">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
@@ -85,38 +67,26 @@ function BestSellers() {
             The cups our regulars keep coming back for — brewed the way we love them.
           </p>
         </div>
-
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((p) => (
-            <article
-              key={p.name}
-              className="group flex flex-col overflow-hidden rounded-3xl bg-card shadow-[0_10px_40px_-20px_rgba(59,42,30,0.25)] transition hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_rgba(181,84,28,0.35)]"
-            >
-              <div className="overflow-hidden bg-cream-deep">
-                <img
-                  src={p.image}
-                  alt={p.name}
-                  width={800}
-                  height={800}
-                  loading="lazy"
-                  className="aspect-square w-full object-cover transition duration-700 group-hover:scale-105"
-                />
-              </div>
-              <div className="flex flex-1 flex-col p-6">
-                <h3 className="text-2xl font-semibold text-primary">{p.name}</h3>
-                <p className="mt-2 flex-1 text-sm text-muted-foreground">{p.description}</p>
-                <div className="mt-6 flex items-center justify-between">
-                  <span className="font-serif text-2xl text-accent">{p.price}</span>
-                  <button
-                    aria-label={`Add ${p.name} to cart`}
-                    className="grid h-11 w-11 place-items-center rounded-full border border-border text-primary transition hover:border-accent hover:bg-accent hover:text-accent-foreground"
-                  >
-                    <ShoppingBag className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
+        {isLoading ? (
+          <div className="flex min-h-[30vh] items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-accent" />
+          </div>
+        ) : data && data.length > 0 ? (
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {data.map((p) => (
+              <ProductCard key={p.node.id} product={p} />
+            ))}
+          </div>
+        ) : (
+          <div className="mx-auto max-w-md rounded-2xl border border-dashed border-border p-10 text-center">
+            <h2 className="text-xl font-semibold text-primary">No products found</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Add products from chat to see them here.</p>
+          </div>
+        )}
+        <div className="mt-12 text-center">
+          <Link to="/shop" className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-semibold uppercase tracking-wider text-primary-foreground transition hover:bg-accent">
+            Shop all coffees
+          </Link>
         </div>
       </div>
     </section>
@@ -144,7 +114,7 @@ function DeliveryBanner() {
           Subscribe once and wake up to freshly roasted beans on your doorstep — as often as you like.
         </p>
         <a
-          href="#shop"
+          href="/shop"
           className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 text-sm font-semibold uppercase tracking-wider text-accent-foreground transition hover:bg-cream hover:text-primary"
         >
           Shop Now
@@ -237,9 +207,13 @@ function Spotlight() {
           </ul>
           <div className="mt-10 flex flex-wrap items-center gap-6">
             <span className="font-serif text-3xl text-primary">$22.00</span>
-            <button className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-semibold uppercase tracking-wider text-accent-foreground transition hover:bg-primary hover:text-primary-foreground">
-              <ShoppingBag className="h-4 w-4" /> Add to Cart
-            </button>
+            <Link
+              to="/product/$handle"
+              params={{ handle: "the-espresso-blend" }}
+              className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-semibold uppercase tracking-wider text-accent-foreground transition hover:bg-primary hover:text-primary-foreground"
+            >
+              <ShoppingBag className="h-4 w-4" /> View Product
+            </Link>
           </div>
         </div>
       </div>

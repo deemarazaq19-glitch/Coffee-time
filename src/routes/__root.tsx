@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { useCartSync } from "@/hooks/useCartSync";
 
 function NotFoundComponent() {
   return (
@@ -131,8 +132,15 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      <CartSyncBoundary />
       <Outlet />
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );
+}
+
+function CartSyncBoundary() {
+  // Hook must run inside QueryClientProvider tree; kept as a no-render component
+  useCartSync();
+  return null;
 }
