@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,8 +16,10 @@ import { toast } from "sonner";
 const SHIPPING_FLAT = 5;
 
 export function CartDrawer() {
-  const [isOpen, setIsOpen] = useState(false);
   const items = useCartStore((s) => s.items);
+  const isOpen = useCartStore((s) => s.isOpen);
+  const setCartOpen = useCartStore((s) => s.setCartOpen);
+  const closeCart = useCartStore((s) => s.closeCart);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
   const clearCart = useCartStore((s) => s.clearCart);
@@ -33,11 +34,11 @@ export function CartDrawer() {
       description: "This is a demo checkout — no payment was taken.",
     });
     clearCart();
-    setIsOpen(false);
+    closeCart();
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet open={isOpen} onOpenChange={setCartOpen}>
       <SheetTrigger asChild>
         <button
           className="relative inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-accent"
