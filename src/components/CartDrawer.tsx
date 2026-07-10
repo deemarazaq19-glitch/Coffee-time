@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -9,42 +9,40 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ShoppingBag, Minus, Plus, Trash2, ExternalLink, Loader2 } from "lucide-react";
+import { ShoppingBag, Minus, Plus, Trash2 } from "lucide-react";
 import { useCartStore } from "@/stores/cartStore";
-import { formatMoney } from "@/lib/shopify";
+import { formatMoney } from "@/lib/products";
+import { toast } from "sonner";
 
-export function CartDrawer({ variant = "primary" }: { variant?: "primary" | "outline" }) {
+const SHIPPING_FLAT = 5;
+
+export function CartDrawer() {
   const [isOpen, setIsOpen] = useState(false);
-  const { items, isLoading, isSyncing, updateQuantity, removeItem, getCheckoutUrl, syncCart } =
-    useCartStore();
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce(
-    (sum, item) => sum + parseFloat(item.price.amount) * item.quantity,
-    0,
-  );
-  const currencyCode = items[0]?.price.currencyCode ?? "USD";
+  const items = useCartStore((s) => s.items);
+  const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const removeItem = useCartStore((s) => s.removeItem);
+  const clearCart = useCartStore((s) => s.clearCart);
 
-  useEffect(() => {
-    if (isOpen) syncCart();
-  }, [isOpen, syncCart]);
+  const totalItems = items.reduce((s, i) => s + i.quantity, 0);
+  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const shipping = items.length > 0 ? SHIPPING_FLAT : 0;
+  const total = subtotal + shipping;
 
   const handleCheckout = () => {
-    const checkoutUrl = getCheckoutUrl();
-    if (checkoutUrl) {
-      window.open(checkoutUrl, "_blank");
-      setIsOpen(false);
-    }
+    toast.success("Order placed!", {
+      description: "This is a demo checkout — no payment was taken.",
+    });
+    clearCart();
+    setIsOpen(false);
   };
-
-  const triggerClasses =
-    variant === "outline"
-      ? "inline-flex items-center gap-2 rounded-full border border-primary-foreground/25 bg-transparent px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:border-accent hover:text-accent"
-      : "inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-accent";
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <button className={`relative ${triggerClasses}`} aria-label="Open cart">
+        <button
+          className="relative inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-accent"
+          aria-label="Open cart"
+        >
           <ShoppingBag className="h-4 w-4" />
           <span>Cart</span>
           {totalItems > 0 && (
@@ -76,31 +74,27 @@ export function CartDrawer({ variant = "primary" }: { variant?: "primary" | "out
               <div className="min-h-0 flex-1 overflow-y-auto pr-2">
                 <div className="space-y-4">
                   {items.map((item) => (
-                    <div key={item.variantId} className="flex gap-4 p-2">
-                      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-secondary/20">
-                        {item.product.node.images?.edges?.[0]?.node && (
+                    <div key={item.id} className="flex gap-4 p-2">
+                      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-cream-deep">
+                        {item.image && (
                           <img
-                            src={item.product.node.images.edges[0].node.url}
-                            alt={item.product.node.title}
+                            src={item.image}
+                            alt={item.title}
                             className="h-full w-full object-cover"
                           />
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h4 className="truncate font-medium">{item.product.node.title}</h4>
-                        {item.variantTitle !== "Default Title" && (
-                          <p className="text-sm text-muted-foreground">{item.variantTitle}</p>
-                        )}
-                        <p className="font-semibold">
-                          {formatMoney(item.price.amount, item.price.currencyCode)}
-                        </p>
+                        <h4 className="truncate font-medium text-primary">{item.title}</h4>
+                        <p className="font-serif text-accent">{formatMoney(item.price)}</p>
                       </div>
                       <div className="flex flex-shrink-0 flex-col items-end gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-6 w-6"
-                          onClick={() => removeItem(item.variantId)}
+                          onClick={() => removeItem(item.id)}
+                          aria-label={`Remove ${item.title}`}
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
@@ -109,7 +103,8 @@ export function CartDrawer({ variant = "primary" }: { variant?: "primary" | "out
                             variant="outline"
                             size="icon"
                             className="h-6 w-6"
-                            onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            aria-label="Decrease quantity"
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
@@ -118,7 +113,8 @@ export function CartDrawer({ variant = "primary" }: { variant?: "primary" | "out
                             variant="outline"
                             size="icon"
                             className="h-6 w-6"
-                            onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            aria-label="Increase quantity"
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
@@ -128,26 +124,21 @@ export function CartDrawer({ variant = "primary" }: { variant?: "primary" | "out
                   ))}
                 </div>
               </div>
-              <div className="flex-shrink-0 space-y-4 border-t bg-background pt-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-semibold">Total</span>
-                  <span className="text-xl font-bold">
-                    {formatMoney(totalPrice, currencyCode)}
-                  </span>
+              <div className="flex-shrink-0 space-y-3 border-t bg-background pt-4">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <span>Subtotal</span>
+                  <span>{formatMoney(subtotal)}</span>
                 </div>
-                <Button
-                  onClick={handleCheckout}
-                  className="w-full"
-                  size="lg"
-                  disabled={items.length === 0 || isLoading || isSyncing}
-                >
-                  {isLoading || isSyncing ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <>
-                      <ExternalLink className="mr-2 h-4 w-4" /> Checkout
-                    </>
-                  )}
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <span>Shipping</span>
+                  <span>{formatMoney(shipping)}</span>
+                </div>
+                <div className="flex items-center justify-between border-t border-border pt-3">
+                  <span className="text-lg font-semibold text-primary">Total</span>
+                  <span className="font-serif text-2xl text-accent">{formatMoney(total)}</span>
+                </div>
+                <Button onClick={handleCheckout} className="w-full" size="lg">
+                  Checkout
                 </Button>
               </div>
             </>

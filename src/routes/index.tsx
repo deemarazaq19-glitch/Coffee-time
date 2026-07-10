@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Loader2, Leaf, Flame, Hand, Instagram, Facebook, Twitter, Mail, MapPin, Phone, ShoppingBag } from "lucide-react";
+import { Leaf, Flame, Hand, Instagram, Facebook, Twitter, Mail, MapPin, Phone, ShoppingBag } from "lucide-react";
 import { ContactForm } from "@/components/ContactForm";
 import { CartDrawer } from "@/components/CartDrawer";
 import { ProductCard } from "@/components/ProductCard";
-import { fetchProducts } from "@/lib/shopify";
+import { products } from "@/lib/products";
 import bannerImg from "@/assets/banner-delivery.jpg";
 import spotlightImg from "@/assets/spotlight-espresso.jpg";
 
@@ -51,10 +50,7 @@ function Nav() {
 }
 
 function BestSellers() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["shopify-products", "best-sellers"],
-    queryFn: () => fetchProducts(3),
-  });
+  const featured = products.slice(0, 3);
   return (
     <section id="shop" className="relative pt-32 pb-24 lg:pt-40">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
@@ -67,22 +63,11 @@ function BestSellers() {
             The cups our regulars keep coming back for — brewed the way we love them.
           </p>
         </div>
-        {isLoading ? (
-          <div className="flex min-h-[30vh] items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-accent" />
-          </div>
-        ) : data && data.length > 0 ? (
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {data.map((p) => (
-              <ProductCard key={p.node.id} product={p} />
-            ))}
-          </div>
-        ) : (
-          <div className="mx-auto max-w-md rounded-2xl border border-dashed border-border p-10 text-center">
-            <h2 className="text-xl font-semibold text-primary">No products found</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Add products from chat to see them here.</p>
-          </div>
-        )}
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {featured.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
         <div className="mt-12 text-center">
           <Link to="/shop" className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-semibold uppercase tracking-wider text-primary-foreground transition hover:bg-accent">
             Shop all coffees

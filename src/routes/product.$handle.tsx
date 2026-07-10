@@ -1,8 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Loader2, ShoppingBag, ArrowLeft } from "lucide-react";
-import { fetchProductByHandle, formatMoney } from "@/lib/shopify";
+import { ShoppingBag, ArrowLeft } from "lucide-react";
+import { getProductByHandle, formatMoney } from "@/lib/products";
 import { CartDrawer } from "@/components/CartDrawer";
 import { useCartStore } from "@/stores/cartStore";
 import { toast } from "sonner";
@@ -24,6 +23,11 @@ export const Route = createFileRoute("/product/$handle")({
       </div>
     </div>
   ),
+  loader: ({ params }) => {
+    const product = getProductByHandle(params.handle);
+    if (!product) throw notFound();
+    return { product };
+  },
   notFoundComponent: () => (
     <div className="flex min-h-screen items-center justify-center px-6 text-center">
       <div>
@@ -53,47 +57,15 @@ function Nav() {
 }
 
 function ProductPage() {
-  const { handle } = Route.useParams();
+  const { product: p } = Route.useLoaderData();
   const [qty, setQty] = useState(1);
   const addItem = useCartStore((s) => s.addItem);
-  const isLoading = useCartStore((s) => s.isLoading);
 
-  const { data, isLoading: isFetching, isError } = useQuery({
-    queryKey: ["shopify-product", handle],
-    queryFn: async () => {
-      const p = await fetchProductByHandle(handle);
-      if (!p) throw notFound();
-      return p;
-    },
-  });
-
-  if (isFetching) {
-    return (
-      <main className="relative min-h-screen bg-background">
-        <Nav />
-        <div className="flex min-h-screen items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-accent" />
-        </div>
-      </main>
+  const handleAdd = () => {
+    addItem(
+      { id: p.id, title: p.title, price: p.price, image: p.image },
+      qty,
     );
-  }
-
-  if (isError || !data) return null;
-
-  const p = data.node;
-  const variant = p.variants.edges[0]?.node;
-  const image = p.images.edges[0]?.node;
-
-  const handleAdd = async () => {
-    if (!variant) return;
-    await addItem({
-      product: data,
-      variantId: variant.id,
-      variantTitle: variant.title,
-      price: variant.price,
-      quantity: qty,
-      selectedOptions: variant.selectedOptions ?? [],
-    });
     toast.success(`${p.title} added to cart`);
   };
 
@@ -107,20 +79,14 @@ function ProductPage() {
           </Link>
           <div className="mt-8 grid gap-12 lg:grid-cols-2 lg:items-start">
             <div className="overflow-hidden rounded-3xl bg-cream-deep">
-              {image ? (
-                <img src={image.url} alt={image.altText ?? p.title} className="aspect-square w-full object-cover" />
-              ) : (
-                <div className="aspect-square w-full" />
-              )}
+              <img src={p.image} alt={p.title} className="aspect-square w-full object-cover" />
             </div>
             <div>
               <h1 className="text-4xl font-semibold text-primary sm:text-5xl">{p.title}</h1>
-              {variant && (
-                <p className="mt-4 font-serif text-3xl text-accent">
-                  {formatMoney(variant.price.amount, variant.price.currencyCode)}
-                </p>
-              )}
-              <p className="mt-6 text-base leading-relaxed text-muted-foreground">{p.description}</p>
+              <p className="mt-4 font-serif text-3xl text-accent">{formatMoney(p.price)}</p>
+              <p className="mt-6 text-base leading-relaxed text-muted-foreground">
+                {p.longDescription ?? p.description}
+              </p>
 
               <div className="mt-10 flex items-center gap-4">
                 <div className="flex items-center gap-3 rounded-full border border-border px-4 py-2">
@@ -130,16 +96,12 @@ function ProductPage() {
                 </div>
                 <button
                   onClick={handleAdd}
-                  disabled={isLoading || !variant?.availableForSale}
-                  className="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 text-sm font-semibold uppercase tracking-wider text-accent-foreground transition hover:bg-primary hover:text-primary-foreground disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 text-sm font-semibold uppercase tracking-wider text-accent-foreground transition hover:bg-primary hover:text-primary-foreground"
                 >
-                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingBag className="h-4 w-4" />}
+                  <ShoppingBag className="h-4 w-4" />
                   Add to Cart
                 </button>
               </div>
-              {variant && !variant.availableForSale && (
-                <p className="mt-4 text-sm text-muted-foreground">Currently out of stock.</p>
-              )}
             </div>
           </div>
         </div>

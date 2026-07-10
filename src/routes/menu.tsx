@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShoppingBag, Instagram, Facebook, Twitter, Mail, MapPin, Phone } from "lucide-react";
 import { ContactForm } from "@/components/ContactForm";
 import { CartDrawer } from "@/components/CartDrawer";
+import { useCartStore } from "@/stores/cartStore";
+import { toast } from "sonner";
 import cappuccinoImg from "@/assets/product-cappuccino.jpg";
 import espressoImg from "@/assets/product-espresso.jpg";
 import latteImg from "@/assets/product-latte.jpg";
@@ -179,6 +181,17 @@ function Nav() {
 }
 
 function ItemRow({ item }: { item: MenuItem }) {
+  const addItem = useCartStore((s) => s.addItem);
+  const handleAdd = () => {
+    const priceNum = parseFloat(item.price.replace(/[^0-9.]/g, "")) || 0;
+    addItem({
+      id: `menu-${item.name.toLowerCase().replace(/\s+/g, "-")}`,
+      title: item.name,
+      price: priceNum,
+      image: item.image,
+    });
+    toast.success(`${item.name} added to cart`);
+  };
   return (
     <article className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-6 rounded-2xl bg-card p-5 shadow-[0_8px_30px_-24px_rgba(59,42,30,0.35)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_40px_-20px_rgba(181,84,28,0.35)] sm:p-6">
       <div className="flex min-w-0 items-center gap-5">
@@ -219,6 +232,7 @@ function ItemRow({ item }: { item: MenuItem }) {
         <span className="font-serif text-xl text-primary sm:text-2xl">{item.price}</span>
         <button
           aria-label={`Add ${item.name} to cart`}
+          onClick={handleAdd}
           className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-accent-foreground transition hover:bg-primary hover:text-primary-foreground sm:text-sm"
         >
           <ShoppingBag className="h-4 w-4" />

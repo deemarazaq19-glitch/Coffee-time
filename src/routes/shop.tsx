@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Instagram, Facebook, Twitter, Mail, MapPin, Phone, Loader2 } from "lucide-react";
-import { fetchProducts } from "@/lib/shopify";
+import { Instagram, Facebook, Twitter, Mail, MapPin, Phone } from "lucide-react";
+import { products } from "@/lib/products";
 import { ProductCard } from "@/components/ProductCard";
 import { CartDrawer } from "@/components/CartDrawer";
 import { ContactForm } from "@/components/ContactForm";
@@ -89,11 +88,6 @@ function Footer() {
 }
 
 function ShopPage() {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["shopify-products"],
-    queryFn: () => fetchProducts(24),
-  });
-
   return (
     <main className="relative min-h-screen bg-background text-foreground">
       <Nav />
@@ -110,24 +104,11 @@ function ShopPage() {
       </section>
       <section className="pb-24 lg:pb-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          {isLoading ? (
-            <div className="flex min-h-[40vh] items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-accent" />
-            </div>
-          ) : isError || !data || data.length === 0 ? (
-            <div className="mx-auto max-w-md rounded-2xl border border-dashed border-border p-10 text-center">
-              <h2 className="text-xl font-semibold text-primary">No products found</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Ask us in chat to add products — tell us the name and price.
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {data.map((p) => (
-                <ProductCard key={p.node.id} product={p} />
-              ))}
-            </div>
-          )}
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
         </div>
       </section>
       <Footer />
