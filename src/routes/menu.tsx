@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShoppingBag, Instagram, Facebook, Twitter, Mail, MapPin, Phone } from "lucide-react";
 import { ContactForm } from "@/components/ContactForm";
+import { CartDrawer } from "@/components/CartDrawer";
 import cappuccinoImg from "@/assets/product-cappuccino.jpg";
 import espressoImg from "@/assets/product-espresso.jpg";
 import latteImg from "@/assets/product-latte.jpg";
@@ -164,15 +165,14 @@ function Nav() {
         </Link>
         <nav className="hidden gap-8 text-sm font-medium text-primary/80 md:flex">
           <Link to="/" className="hover:text-accent">Home</Link>
+          <Link to="/shop" className="hover:text-accent">Shop</Link>
           <Link to="/menu" activeProps={{ className: "text-accent" }} className="hover:text-accent">
             Menu
           </Link>
           <a href="/#about" className="hover:text-accent">Our Story</a>
           <a href="/#contact" className="hover:text-accent">Contact</a>
         </nav>
-        <button className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-accent">
-          <ShoppingBag className="h-4 w-4" /> Cart
-        </button>
+        <CartDrawer />
       </div>
     </header>
   );

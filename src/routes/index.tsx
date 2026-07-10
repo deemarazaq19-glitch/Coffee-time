@@ -207,9 +207,13 @@ function Spotlight() {
           </ul>
           <div className="mt-10 flex flex-wrap items-center gap-6">
             <span className="font-serif text-3xl text-primary">$22.00</span>
-            <button className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-semibold uppercase tracking-wider text-accent-foreground transition hover:bg-primary hover:text-primary-foreground">
-              <ShoppingBag className="h-4 w-4" /> Add to Cart
-            </button>
+            <Link
+              to="/product/$handle"
+              params={{ handle: "the-espresso-blend" }}
+              className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-semibold uppercase tracking-wider text-accent-foreground transition hover:bg-primary hover:text-primary-foreground"
+            >
+              <ShoppingBag className="h-4 w-4" /> View Product
+            </Link>
           </div>
         </div>
       </div>
