@@ -182,6 +182,7 @@ function Nav() {
 
 function ItemRow({ item }: { item: MenuItem }) {
   const addItem = useCartStore((s) => s.addItem);
+  const openCart = useCartStore((s) => s.openCart);
   const handleAdd = () => {
     const priceNum = parseFloat(item.price.replace(/[^0-9.]/g, "")) || 0;
     addItem({
@@ -191,6 +192,7 @@ function ItemRow({ item }: { item: MenuItem }) {
       image: item.image,
     });
     toast.success(`${item.name} added to cart`);
+    openCart();
   };
   return (
     <article className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-6 rounded-2xl bg-card p-5 shadow-[0_8px_30px_-24px_rgba(59,42,30,0.35)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_40px_-20px_rgba(181,84,28,0.35)] sm:p-6">
