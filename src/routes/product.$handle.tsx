@@ -60,6 +60,7 @@ function ProductPage() {
   const { product: p } = Route.useLoaderData();
   const [qty, setQty] = useState(1);
   const addItem = useCartStore((s) => s.addItem);
+  const openCart = useCartStore((s) => s.openCart);
 
   const handleAdd = () => {
     addItem(
@@ -67,6 +68,7 @@ function ProductPage() {
       qty,
     );
     toast.success(`${p.title} added to cart`);
+    openCart();
   };
 
   return (
